@@ -1,3 +1,9 @@
-myapp = node[:opsworks][:applications][0][:slug_name]
-command "sudo su - deploy -c 'cd /srv/www/#{myapp}/current && bundle exec rake RAILS_ENV=production assets:precompile' "
-comand "echo asset compiled for #{myapp}... > /var/tmp/before_restart.out"
+rails_env = new_resource.environment["RAILS_ENV"]
+
+Chef::Log.info("Precompiling assets for RAILS_ENV=#{rails_env}...")
+
+execute "rake assets:precompile" do
+  cwd release_path
+  command "bundle exec rake assets:precompile"
+  environment "RAILS_ENV" => rails_env
+end
